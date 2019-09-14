@@ -3,6 +3,5 @@ out
 target
 *.iml
 log
-
-
-
+.DS_Store
+*.patch
