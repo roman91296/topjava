@@ -5,6 +5,19 @@
 </head>
 <body>
 <h3>Проект <a href="https://github.com/JavaWebinar/topjava" target="_blank">Java Enterprise (Topjava)</a></h3>
+
+
+<form method="get" action="users">
+    <input type="text" name="action" value="changeUser" hidden>
+    <h2>Выберите пользователя
+        <select name="selectUserId">
+            <option value="0" selected></option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+    </h2>
+    <button type="submit" name="acceptBtn">Смень пользователя</button>
+</form>
 <hr>
 <ul>
     <li><a href="users">Users</a></li>
