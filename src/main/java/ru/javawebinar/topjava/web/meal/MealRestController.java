@@ -7,10 +7,9 @@ import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealTo;
+import ru.javawebinar.topjava.util.MealsUtil;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -25,11 +24,6 @@ public class MealRestController {
 
     @Autowired
     private MealService service;
-
-    @PostConstruct
-    public void init() {
-        service.init(getAuthUserId());
-    }
 
     public Meal get(int id) {
         log.info("get {}, userId = {}", id, getAuthUserId());
@@ -55,25 +49,13 @@ public class MealRestController {
 
     public List<MealTo> getAll() {
         log.info("getAll, userId = {}", getAuthUserId());
-        return service.getAll(getAuthUserId(), authUserCaloriesPerDay());
+        return MealsUtil.getTos(service.getAll(getAuthUserId()), authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getFilteredByDate(LocalDate startDate, LocalDate endDate) {
-        log.info("getFiltered by date: from [{}] to [{}], userId = {}", startDate, endDate, getAuthUserId());
-        return service.getFilteredByDate(getAuthUserId(), authUserCaloriesPerDay(), startDate, endDate);
-    }
-
-    public List<MealTo> getFilteredByDateTime(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-        log.info(
-                "getFiltered by date and time: from [{}] to [{}], userId = {}",
-                LocalDateTime.of(startDate, startTime).toString(), LocalDateTime.of(endDate, endTime).toString(), getAuthUserId()
-        );
-        return service.getFilteredByDateTime(getAuthUserId(), authUserCaloriesPerDay(), startDate, endDate, startTime, endTime);
-    }
-
-    public List<MealTo> getFilteredByTime(LocalTime startTime, LocalTime endTime) {
-        log.info("getFiltered by time: from [{}] to [{}], userId = {}", startTime, endTime, getAuthUserId());
-        return service.getFilteredByTime(getAuthUserId(), authUserCaloriesPerDay(), startTime, endTime);
+    public List<MealTo> getFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        log.info("getFiltered by date [{} - {}] and time [{} - {}], userId = {}", startDate, endDate, startTime, endTime, getAuthUserId());
+        List<Meal> filteredByDateMeals = service.getBetweenDates(getAuthUserId(), startDate, endDate);
+        return MealsUtil.getFilteredTos(filteredByDateMeals, authUserCaloriesPerDay(), startTime, endTime);
     }
 
 }

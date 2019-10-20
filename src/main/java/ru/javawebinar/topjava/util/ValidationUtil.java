@@ -14,12 +14,12 @@ public class ValidationUtil {
         checkNotFound(found, "id=" + id);
     }
 
-    public static <T> T checkNotFoundForUserWithId(T object, int userId, int id) {
-        return checkNotFound(object, "userId=" + userId + ", id=" + id);
+    public static <T> T checkNotFoundForUserWithId(T object, int id) {
+        return checkNotFound(object, "id=" + id);
     }
 
-    public static void checkNotFoundForUserWithId(boolean found, int userId, int id) {
-        checkNotFound(found, "userId=" + userId + ", id=" + id);
+    public static void checkNotFoundForUserWithId(boolean found, int id) {
+        checkNotFound(found, "id=" + id);
     }
 
     public static <T> T checkNotFound(T object, String msg) {

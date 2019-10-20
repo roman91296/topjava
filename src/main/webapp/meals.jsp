@@ -26,14 +26,14 @@
     <form method="get" action="meals">
         <input type="text" name="action" value="filter" hidden>
         <span>Фильтр по дате</span>
-        <input type="date" name="startDate" value="${startDate}">
+        <input type="date" name="startDate" value="${param.startDate}">
         -
-        <input type="date" name="endDate" value="${endDate}">
+        <input type="date" name="endDate" value="${param.endDate}">
         <br><br>
         <span>Фильтр по времени</span>
-        <input type="time" name="startTime" min="00:00" max="24:00" value="${startTime}">
+        <input type="time" name="startTime" min="00:00" max="24:00" value="${param.startTime}">
         -
-        <input type="time" name="endTime" min="00:00" max="24:00" value="${endTime}">
+        <input type="time" name="endTime" min="00:00" max="24:00" value="${param.endTime}">
         <br><br>
         <button type="submit" name="submitBtn" value="submitBtn">Отфильтровать</button>
         <span>     </span>

@@ -2,9 +2,9 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.util.StringUtils;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.web.meal.MealRestController;
@@ -22,19 +22,31 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
+import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
+import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
 import static ru.javawebinar.topjava.web.SecurityUtil.getAuthUserId;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
 
     private MealRestController mealController;
+    ConfigurableApplicationContext appCtx;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
+        try {
+            appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
             mealController = appCtx.getBean(MealRestController.class);
+        } catch (BeansException e) {
+            log.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void destroy() {
+        appCtx.close();
+        super.destroy();
     }
 
     @Override
@@ -84,27 +96,12 @@ public class MealServlet extends HttpServlet {
                 break;
             case "filter":
                 log.info("get filtered");
-                LocalDate startDate = !StringUtils.isEmpty(request.getParameter("startDate")) ? LocalDate.parse(request.getParameter("startDate")) : null;
-                LocalDate endDate = !StringUtils.isEmpty(request.getParameter("endDate")) ? LocalDate.parse(request.getParameter("endDate")) : null;
-                LocalTime startTime = !StringUtils.isEmpty(request.getParameter("startTime")) ? LocalTime.parse(request.getParameter("startTime")) : null;
-                LocalTime endTime = !StringUtils.isEmpty(request.getParameter("endTime")) ? LocalTime.parse(request.getParameter("endTime")) : null;
-                List<MealTo> mealTos = null;
-                if (startDate != null && endDate != null) {
-                    if (startTime == null && endTime == null) {
-                        mealTos = mealController.getFilteredByDate(startDate, endDate);
-                    } else {
-                        mealTos = mealController.getFilteredByDateTime(startDate, endDate, startTime, endTime);
-                    }
-                } else if (startTime != null && endTime != null) {
-                    mealTos = mealController.getFilteredByTime(startTime, endTime);
-                } else {
-                    mealTos = mealController.getAll();
-                }
+                LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
+                LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
+                LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
+                LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
 
-                request.setAttribute("startDate", startDate);
-                request.setAttribute("endDate", endDate);
-                request.setAttribute("startTime", startTime);
-                request.setAttribute("endTime", endTime);
+                List<MealTo> mealTos = mealController.getFiltered(startDate, endDate, startTime, endTime);
 
                 request.setAttribute("meals", mealTos);
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
@@ -112,12 +109,8 @@ public class MealServlet extends HttpServlet {
             case "all":
             default:
                 log.info("getAll");
-                request.setAttribute("startDate", null);
-                request.setAttribute("endDate", null);
-                request.setAttribute("startTime", null);
-                request.setAttribute("endTime", null);
-                request.setAttribute("meals", mealController.getAll());
-                request.getRequestDispatcher("/meals.jsp").forward(request, response);
+                request.getSession().setAttribute("meals", mealController.getAll());
+                response.sendRedirect(request.getContextPath() + "/meals.jsp");
                 break;
         }
     }

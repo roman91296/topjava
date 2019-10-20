@@ -15,18 +15,15 @@ public class UserServlet extends HttpServlet {
     private static final Logger log = getLogger(UserServlet.class);
 
     @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int userId = Integer.parseInt(request.getParameter("selectUser"));
+        setAuthUserId(userId);
+        response.sendRedirect("meals");
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("forward to users");
-        String action = request.getParameter("action");
-        switch (action) {
-            case "changeUser":
-                int userId = Integer.parseInt(request.getParameter("selectUserId"));
-                setAuthUserId(userId);
-                request.getRequestDispatcher("/index.html").forward(request, response);
-                break;
-            default:
-                request.getRequestDispatcher("/users.jsp").forward(request, response);
-                break;
-        }
+        request.getRequestDispatcher("/users.jsp").forward(request, response);
     }
 }

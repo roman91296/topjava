@@ -2,8 +2,8 @@ package ru.javawebinar.topjava.repository;
 
 import ru.javawebinar.topjava.model.Meal;
 
-import java.time.LocalDate;
-import java.util.Collection;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public interface MealRepository {
     // null if not found, when updated
@@ -15,7 +15,7 @@ public interface MealRepository {
     // null if not found
     Meal get(int userId, int id);
 
-    Collection<Meal> getAll(int userId);
+    List<Meal> getAll(int userId);
 
-    Collection<Meal> getFiltered(int userId, LocalDate startDate, LocalDate endDate);
+    List<Meal> getBetween(int userId, LocalDateTime startDateTime, LocalDateTime endDateTime);
 }
