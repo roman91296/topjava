@@ -21,4 +21,18 @@
 
     <context:component-scan base-package="ru.javawebinar.**.web"/>
 
+        <bean class="ru.javawebinar.topjava.service.UserService">
+            <property name="repository" ref="inmemoryUserRepository"/>
+        </bean>
+    -->
+
+    <!-- Not necessary, already included with component-scan -->
+    <!--<context:annotation-config/>-->
+
+    <context:component-scan base-package="ru.javawebinar.**.repository"/>
+
+    <context:component-scan base-package="ru.javawebinar.**.service"/>
+
+    <context:component-scan base-package="ru.javawebinar.**.web"/>
+
 </beans>
