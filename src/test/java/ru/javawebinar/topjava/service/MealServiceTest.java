@@ -1,15 +1,24 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.StopWatch;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import javax.persistence.NoResultException;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -28,19 +37,54 @@ public class MealServiceTest {
     @Autowired
     private MealService service;
 
+    private static StopWatch watchGlobal;
+
+    @Rule
+    public final ExpectedException exceptionRule = ExpectedException.none();
+
+    @Rule
+    public final TestRule leadTimeRule = new TestWatcher() {
+        private StopWatch watchLocal = new StopWatch();
+
+        @Override
+        protected void starting(Description description) {
+            watchGlobal.start(description.getMethodName());
+            watchLocal.start(description.getMethodName());
+        }
+
+        @Override
+        protected void finished(Description description) {
+            watchLocal.stop();
+            watchGlobal.stop();
+            System.out.println(watchLocal.prettyPrint());
+        }
+    };
+
+    @BeforeClass
+    public static void runTests() {
+        watchGlobal = new StopWatch();
+    }
+
+    @AfterClass
+    public static void finishTests() {
+        System.out.println(watchGlobal.prettyPrint());
+    }
+
     @Test
     public void delete() throws Exception {
         service.delete(MEAL1_ID, USER_ID);
         assertMatch(service.getAll(USER_ID), MEAL6, MEAL5, MEAL4, MEAL3, MEAL2);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void deleteNotFound() throws Exception {
+        exceptionRule.expect(NotFoundException.class);
         service.delete(1, USER_ID);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void deleteNotOwn() throws Exception {
+        exceptionRule.expect(NotFoundException.class);
         service.delete(MEAL1_ID, ADMIN_ID);
     }
 
@@ -59,13 +103,15 @@ public class MealServiceTest {
         assertMatch(actual, ADMIN_MEAL1);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void getNotFound() throws Exception {
+        exceptionRule.expect(NoResultException.class);
         service.get(1, USER_ID);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void getNotOwn() throws Exception {
+        exceptionRule.expect(NoResultException.class);
         service.get(MEAL1_ID, ADMIN_ID);
     }
 
@@ -76,8 +122,9 @@ public class MealServiceTest {
         assertMatch(service.get(MEAL1_ID, USER_ID), updated);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void updateNotFound() throws Exception {
+        exceptionRule.expect(NotFoundException.class);
         service.update(MEAL1, ADMIN_ID);
     }
 
