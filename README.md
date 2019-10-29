@@ -1,5 +1,5 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e958248379664077b66a2c4d3424cb40)](https://www.codacy.com/manual/roman91296/topjava?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=roman91296/topjava&amp;utm_campaign=Badge_Grade)
-
+[![Build Status](https://travis-ci.org/roman91296/topjava.svg?branch=master)](https://travis-ci.org/roman91296/topjava)
 
 Java Enterprise Online Project 
 ===============================
