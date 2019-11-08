@@ -9,6 +9,8 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -34,6 +36,8 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MealServiceTest.class);
+
     @Autowired
     private MealService service;
 
@@ -56,7 +60,7 @@ public class MealServiceTest {
         protected void finished(Description description) {
             watchLocal.stop();
             watchGlobal.stop();
-            System.out.println(watchLocal.prettyPrint());
+            LOGGER.info(watchLocal.prettyPrint());
         }
     };
 
@@ -67,7 +71,7 @@ public class MealServiceTest {
 
     @AfterClass
     public static void finishTests() {
-        System.out.println(watchGlobal.prettyPrint());
+        LOGGER.info(watchGlobal.prettyPrint());
     }
 
     @Test
