@@ -18,7 +18,7 @@
 
         <spring.version>5.1.9.RELEASE</spring.version>
         <spring-data-jpa.version>2.2.0.RELEASE</spring-data-jpa.version>
-        <tomcat.version>9.0.27</tomcat.version>
+        <tomcat.version>9.0.24</tomcat.version>
 
         <!-- Logging -->
         <logback.version>1.2.3</logback.version>
@@ -57,6 +57,48 @@
                 <version>2.22.2</version>
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
+                </configuration>
+            </plugin>
+
+            <!-- http://stackoverflow.com/questions/4305935/is-it-possible-to-supply-tomcat6s-context-xml-file-via-the-maven-cargo-plugin#4417945 -->
+            <!-- https://codehaus-cargo.github.io/cargo/Tomcat+9.x.html -->
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.7.7</version>
+                <configuration>
+                    <container>
+                        <containerId>tomcat9x</containerId>
+                        <systemProperties>
+                            <file.encoding>UTF-8</file.encoding>
+                            <spring.profiles.active>tomcat,datajpa</spring.profiles.active>
+                        </systemProperties>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                            </dependency>
+                        </dependencies>
+                    </container>
+                    <configuration>
+                        <configfiles>
+                            <configfile>
+                                <file>src/main/resources/tomcat/context.xml</file>
+                                <todir>conf/Catalina/localhost/</todir>
+                                <tofile>context.xml.default</tofile>
+                            </configfile>
+                        </configfiles>
+                    </configuration>
+                    <deployables>
+                        <deployable>
+                            <groupId>ru.javawebinar</groupId>
+                            <artifactId>topjava</artifactId>
+                            <type>war</type>
+                            <properties>
+                                <context>${project.build.finalName}</context>
+                            </properties>
+                        </deployable>
+                    </deployables>
                 </configuration>
             </plugin>
         </plugins>
@@ -127,6 +169,11 @@
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate-validator.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jcache</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
 
         <!--http://hibernate.org/validator/documentation/getting-started/#unified-expression-language-el-->
         <dependency>
@@ -158,9 +205,9 @@
 
         <!--Web-->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>${tomcat.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -168,6 +215,11 @@
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <version>1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
         </dependency>
 
         <!--Test-->
